@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { CommandTag, FeatureCard } from '@/components'
+import {
+  CommandTag,
+  FeatureCard,
+  MatchCommandDetailDialog,
+  TagDropdown,
+  useMatchCommandDetail
+} from '@/components'
 import type { DocItem, PluginItem, TabId, TabItem } from './types'
 
-defineProps<{
+const props = defineProps<{
   plugin: PluginItem
   activeTab: TabId
   availableTabs: TabItem[]
@@ -27,27 +33,14 @@ const emit = defineEmits<{
   (e: 'clear-all-data'): void
 }>()
 
-function cmdKey(cmd: any): string {
-  if (cmd && typeof cmd === 'object') {
-    return cmd.label || cmd.text || cmd.name || ''
-  }
-  return String(cmd)
-}
-
-function normalizeCommand(cmd: any): any {
-  if (cmd && typeof cmd === 'object') {
-    return {
-      name: cmd.label || cmd.name,
-      text: cmd.label,
-      type: cmd.type,
-      match: cmd.match
-    }
-  }
-  return {
-    text: String(cmd),
-    type: 'text'
-  }
-}
+const {
+  selectedMatchCommand,
+  openMatchCommandDetail,
+  closeMatchCommandDetail,
+  cmdKey,
+  normalizeCommand,
+  isMatchCommand
+} = useMatchCommandDetail()
 
 function formatJsonData(data: any): string {
   if (!data) return ''
@@ -109,11 +102,16 @@ function formatDate(dateStr?: string): string {
       <div v-if="activeTab === 'commands'" class="tab-panel">
         <div v-if="plugin.features && plugin.features.length > 0" class="feature-list">
           <FeatureCard v-for="feature in plugin.features" :key="feature.code" :feature="feature">
-            <CommandTag
-              v-for="cmd in feature.cmds"
-              :key="cmdKey(cmd)"
-              :command="normalizeCommand(cmd)"
-            />
+            <template v-for="cmd in feature.cmds" :key="cmdKey(cmd)">
+              <TagDropdown
+                v-if="isMatchCommand(cmd)"
+                :menu-items="[{ key: 'detail', label: '查看详情', icon: 'i-z-info' }]"
+                @select="openMatchCommandDetail(feature, cmd)"
+              >
+                <CommandTag :command="normalizeCommand(cmd)" show-arrow />
+              </TagDropdown>
+              <CommandTag v-else :command="normalizeCommand(cmd)" />
+            </template>
           </FeatureCard>
         </div>
         <div v-else class="empty-message">暂无指令</div>
@@ -208,6 +206,12 @@ function formatDate(dateStr?: string): string {
       <!-- 额外 Tab 内容（留言等） -->
       <slot name="extra-tabs" />
     </div>
+
+    <MatchCommandDetailDialog
+      :visible="!!selectedMatchCommand"
+      :command="selectedMatchCommand?.command"
+      @close="closeMatchCommandDetail"
+    />
   </div>
 </template>
 
