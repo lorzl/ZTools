@@ -429,36 +429,6 @@ export class SettingsAPI {
 
       console.log('[Settings] 捕获到内容数量:', contents.length)
 
-      // 处理文本内容
-      const textContent = contents.find((item) => item.type === 'text')
-      if (textContent && textContent.type === 'text') {
-        const text = textContent.data
-        console.log('[Settings] 捕获到文本，长度:', text.length)
-        if (text.trim()) {
-          console.log('[Settings] 文本捕获成功')
-          return {
-            searchQuery: text,
-            pastedImage: null,
-            pastedFiles: null,
-            pastedText: text
-          }
-        } else {
-          console.log('[Settings] 文本为空')
-        }
-      }
-
-      // 处理图片内容
-      const imageContent = contents.find((item) => item.type === 'image')
-      if (imageContent && imageContent.type === 'image') {
-        console.log('[Settings] 捕获到图片')
-        return {
-          searchQuery: '',
-          pastedImage: imageContent.data,
-          pastedFiles: null,
-          pastedText: null
-        }
-      }
-
       // 处理文件内容
       const fileContent = contents.find((item) => item.type === 'file')
       if (fileContent && fileContent.type === 'file') {
@@ -483,6 +453,36 @@ export class SettingsAPI {
           pastedImage: null,
           pastedFiles: files,
           pastedText: null
+        }
+      }
+
+      // 处理图片内容
+      const imageContent = contents.find((item) => item.type === 'image')
+      if (imageContent && imageContent.type === 'image') {
+        console.log('[Settings] 捕获到图片')
+        return {
+          searchQuery: '',
+          pastedImage: imageContent.data,
+          pastedFiles: null,
+          pastedText: null
+        }
+      }
+
+      // 处理文本内容
+      const textContent = contents.find((item) => item.type === 'text')
+      if (textContent && textContent.type === 'text') {
+        const text = textContent.data
+        console.log('[Settings] 捕获到文本，长度:', text.length)
+        if (text.trim()) {
+          console.log('[Settings] 文本捕获成功')
+          return {
+            searchQuery: text,
+            pastedImage: null,
+            pastedFiles: null,
+            pastedText: text
+          }
+        } else {
+          console.log('[Settings] 文本为空')
         }
       }
 
