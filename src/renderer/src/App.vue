@@ -170,9 +170,6 @@ function handleComposing(composing: boolean): void {
 // 关闭插件，返回搜索页（胶囊标签关闭按钮）
 function handleClosePlugin(): void {
   exitPluginToSearch()
-  nextTick(() => {
-    searchBoxRef.value?.focus()
-  })
 }
 
 /**
@@ -182,7 +179,15 @@ function exitPluginToSearch(): void {
   currentView.value = ViewMode.Search
   searchQuery.value = ''
   window.ztools.hidePlugin()
+  focusSearchAfterPluginExit()
   console.log('[PluginExit] 已退出插件并返回搜索视图')
+}
+
+function focusSearchAfterPluginExit(): void {
+  nextTick(() => {
+    updateWindowHeight()
+    searchBoxRef.value?.focus()
+  })
 }
 
 /**
