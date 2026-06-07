@@ -1,4 +1,4 @@
-export const DISABLED_MAIN_PUSH_PLUGINS_KEY = 'disabledMainPushPlugin'
+export const ENABLED_MAIN_PUSH_PLUGINS_KEY = 'enabled-main-push-plugin'
 
 export type PluginConfigEntry = string | { pluginName?: string | null }
 
@@ -10,11 +10,8 @@ export function normalizeConfigList(data: unknown): string[] {
     .filter((name): name is string => Boolean(name))
 }
 
-export function isMainPushPluginEnabled(
-  pluginName: string,
-  disabledPluginNames: string[]
-): boolean {
-  return !disabledPluginNames.includes(pluginName)
+export function isMainPushPluginEnabled(pluginName: string, enabledPluginNames: string[]): boolean {
+  return enabledPluginNames.includes(pluginName)
 }
 
 export function removePluginNameFromSettingList(data: string[], pluginName: string): string[] {

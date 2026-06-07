@@ -834,11 +834,11 @@ window.ztools = {
     setPluginDisabled: async (pluginPath, disabled) =>
       await electron.ipcRenderer.invoke('internal:set-plugin-disabled', pluginPath, disabled),
     getAllPlugins: async () => await electron.ipcRenderer.invoke('internal:get-all-plugins'),
-    setPluginMainPushDisabled: async (pluginName, disabled) =>
+    setPluginMainPushEnabled: async (pluginName, enabled) =>
       await electron.ipcRenderer.invoke(
-        'internal:set-plugin-main-push-disabled',
+        'internal:set-plugin-main-push-enabled',
         pluginName,
-        disabled
+        enabled
       ),
     selectPluginFile: async () => await electron.ipcRenderer.invoke('internal:select-plugin-file'),
     importPlugin: async () => await electron.ipcRenderer.invoke('internal:import-plugin'),

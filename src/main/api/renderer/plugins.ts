@@ -19,7 +19,7 @@ import {
   isDevelopmentPluginName
 } from '../../../shared/pluginRuntimeNamespace'
 import {
-  DISABLED_MAIN_PUSH_PLUGINS_KEY,
+  ENABLED_MAIN_PUSH_PLUGINS_KEY,
   normalizeConfigList,
   removePluginNameFromSettingList
 } from '../../../shared/pluginSettings'
@@ -30,7 +30,7 @@ const PLUGIN_NAME_SETTING_KEYS = [
   'outKillPlugin',
   'autoDetachPlugin',
   'autoStartPlugin',
-  DISABLED_MAIN_PUSH_PLUGINS_KEY
+  ENABLED_MAIN_PUSH_PLUGINS_KEY
 ]
 
 export interface DeletePluginOptions {
@@ -526,26 +526,26 @@ export class PluginsAPI {
     }
   }
 
-  public async setPluginMainPushDisabled(
+  public async setPluginMainPushEnabled(
     pluginName: string,
-    disabled: boolean
+    enabled: boolean
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const disabledPluginNames = new Set(
-        normalizeConfigList(databaseAPI.dbGet(DISABLED_MAIN_PUSH_PLUGINS_KEY))
+      const enabledPluginNames = new Set(
+        normalizeConfigList(databaseAPI.dbGet(ENABLED_MAIN_PUSH_PLUGINS_KEY))
       )
-      const isCurrentlyDisabled = disabledPluginNames.has(pluginName)
-      if (isCurrentlyDisabled === disabled) {
+      const isCurrentlyEnabled = enabledPluginNames.has(pluginName)
+      if (isCurrentlyEnabled === enabled) {
         return { success: true }
       }
 
-      if (disabled) {
-        disabledPluginNames.add(pluginName)
+      if (enabled) {
+        enabledPluginNames.add(pluginName)
       } else {
-        disabledPluginNames.delete(pluginName)
+        enabledPluginNames.delete(pluginName)
       }
 
-      databaseAPI.dbPut(DISABLED_MAIN_PUSH_PLUGINS_KEY, [...disabledPluginNames])
+      databaseAPI.dbPut(ENABLED_MAIN_PUSH_PLUGINS_KEY, [...enabledPluginNames])
       this.notifyPluginsChanged()
       return { success: true }
     } catch (error: unknown) {

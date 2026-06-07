@@ -16,7 +16,7 @@ import {
   type CommandAliasStore
 } from '@shared/commandShared'
 import {
-  DISABLED_MAIN_PUSH_PLUGINS_KEY,
+  ENABLED_MAIN_PUSH_PLUGINS_KEY,
   isMainPushPluginEnabled,
   normalizeConfigList
 } from '@shared/pluginSettings'
@@ -199,7 +199,7 @@ export const useCommandDataStore = defineStore('commandData', () => {
   const disabledCommands = ref<string[]>([])
   const DISABLED_COMMANDS_KEY = 'disable-commands'
   const disabledPluginPaths = ref<string[]>([])
-  const disabledMainPushPluginNames = ref<string[]>([])
+  const enabledMainPushPluginNames = ref<string[]>([])
 
   function setDisabledPluginPaths(paths: unknown): void {
     disabledPluginPaths.value = Array.isArray(paths)
@@ -456,13 +456,13 @@ export const useCommandDataStore = defineStore('commandData', () => {
     }
   }
 
-  async function loadDisabledMainPushPlugins(): Promise<void> {
+  async function loadEnabledMainPushPlugins(): Promise<void> {
     try {
-      const data = await window.ztools.dbGet(DISABLED_MAIN_PUSH_PLUGINS_KEY)
-      disabledMainPushPluginNames.value = normalizeConfigList(data)
+      const data = await window.ztools.dbGet(ENABLED_MAIN_PUSH_PLUGINS_KEY)
+      enabledMainPushPluginNames.value = normalizeConfigList(data)
     } catch (error) {
-      console.error('加载禁用 mainPush 插件列表失败:', error)
-      disabledMainPushPluginNames.value = []
+      console.error('加载启用 mainPush 插件列表失败:', error)
+      enabledMainPushPluginNames.value = []
     }
   }
 
@@ -511,7 +511,7 @@ export const useCommandDataStore = defineStore('commandData', () => {
       await Promise.all([
         loadDisabledCommands(),
         loadDisabledPlugins(),
-        loadDisabledMainPushPlugins()
+        loadEnabledMainPushPlugins()
       ])
       await loadCommands()
       await Promise.all([
@@ -672,16 +672,14 @@ export const useCommandDataStore = defineStore('commandData', () => {
    */
   async function reloadPluginCommands(): Promise<void> {
     try {
-      const [plugins, disabledPlugins, disabledMainPushPlugins, commandAliases] = await Promise.all(
-        [
-          window.ztools.getAllPlugins(),
-          window.ztools.getDisabledPlugins(),
-          window.ztools.dbGet(DISABLED_MAIN_PUSH_PLUGINS_KEY),
-          loadCommandAliases()
-        ]
-      )
+      const [plugins, disabledPlugins, enabledMainPushPlugins, commandAliases] = await Promise.all([
+        window.ztools.getAllPlugins(),
+        window.ztools.getDisabledPlugins(),
+        window.ztools.dbGet(ENABLED_MAIN_PUSH_PLUGINS_KEY),
+        loadCommandAliases()
+      ])
       setDisabledPluginPaths(disabledPlugins)
-      disabledMainPushPluginNames.value = normalizeConfigList(disabledMainPushPlugins)
+      enabledMainPushPluginNames.value = normalizeConfigList(enabledMainPushPlugins)
       const enabledPluginPaths = getEnabledPluginPaths(plugins)
       enabledPluginsCache.value = plugins.filter((plugin: any) =>
         enabledPluginPaths.has(plugin.path)
@@ -789,7 +787,7 @@ export const useCommandDataStore = defineStore('commandData', () => {
         const featureIcon = feature.icon || plugin.logo
         const isMainPush =
           !!feature.mainPush &&
-          isMainPushPluginEnabled(plugin.name, disabledMainPushPluginNames.value)
+          isMainPushPluginEnabled(plugin.name, enabledMainPushPluginNames.value)
 
         if (isMainPush) {
           mainPushItems.push({
@@ -940,12 +938,12 @@ export const useCommandDataStore = defineStore('commandData', () => {
     const requestId = ++loadCommandsRequestId
     loading.value = true
     try {
-      const [rawApps, plugins, disabledPlugins, disabledMainPushPlugins, commandAliases] =
+      const [rawApps, plugins, disabledPlugins, enabledMainPushPlugins, commandAliases] =
         await Promise.all([
           window.ztools.getApps(),
           window.ztools.getAllPlugins(),
           window.ztools.getDisabledPlugins(),
-          window.ztools.dbGet(DISABLED_MAIN_PUSH_PLUGINS_KEY),
+          window.ztools.dbGet(ENABLED_MAIN_PUSH_PLUGINS_KEY),
           loadCommandAliases()
         ])
 
@@ -997,7 +995,7 @@ export const useCommandDataStore = defineStore('commandData', () => {
       }
 
       setDisabledPluginPaths(disabledPlugins)
-      disabledMainPushPluginNames.value = normalizeConfigList(disabledMainPushPlugins)
+      enabledMainPushPluginNames.value = normalizeConfigList(enabledMainPushPlugins)
       rawAppsCache.value = rawApps
       const enabledPluginPaths = getEnabledPluginPaths(plugins)
       enabledPluginsCache.value = plugins.filter((plugin: any) =>

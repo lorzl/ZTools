@@ -214,12 +214,12 @@ export class InternalPluginAPI {
     })
 
     ipcMain.handle(
-      'internal:set-plugin-main-push-disabled',
-      async (event, pluginName: string, disabled: boolean) => {
+      'internal:set-plugin-main-push-enabled',
+      async (event, pluginName: string, enabled: boolean) => {
         if (!requireInternalPlugin(this.pluginManager, event)) {
-          throw new PermissionDeniedError('internal:set-plugin-main-push-disabled')
+          throw new PermissionDeniedError('internal:set-plugin-main-push-enabled')
         }
-        return await pluginsAPI.setPluginMainPushDisabled(pluginName, disabled)
+        return await pluginsAPI.setPluginMainPushEnabled(pluginName, enabled)
       }
     )
 

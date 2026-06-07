@@ -57,9 +57,9 @@ declare global {
           pluginPath: string,
           disabled: boolean
         ) => Promise<{ success: boolean; error?: string }>
-        setPluginMainPushDisabled: (
+        setPluginMainPushEnabled: (
           pluginName: string,
-          disabled: boolean
+          enabled: boolean
         ) => Promise<{ success: boolean; error?: string }>
         getAllPlugins: () => Promise<
           Array<{
